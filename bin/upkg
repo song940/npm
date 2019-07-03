@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+require('../updater')(
+  require('../package')
+);
+const path = require('path');
+const init = require('./upkg-init');
+const upkg = require('..');
+
+const argv    = process.argv;
+const command = argv[2];
+const options = argv.slice(3);
+
+switch(command){
+  case 'init':
+    init.apply(this, options);
+    break;
+  case 'server':
+    startServer.apply(this, options);
+    break;
+  default:
+    help();
+    break;
+}
+
+function help(){
+  console.log('upkg help');
+  console.log();
+  console.log('- init');
+  console.log('- server');
+}
+
+function startServer(){
+  const registry = new upkg({
+    registry: 'https://registry.npmjs.com'
+  });
+
+  const storage = new upkg.Storage({
+    dir: '/tmp/upkg'
+  });
+
+  const proxy = new upkg.Proxy({
+    storage : storage,
+    registry: registry
+  });
+
+  const server = new upkg.Server({
+    registry: proxy
+  });
+
+  server.listen(9090, function(err){
+    console.log('npm server is running at %s', this.address().port);
+  });
+}

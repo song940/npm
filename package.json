@@ -1,0 +1,42 @@
+{
+  "name": "upkg",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": {
+    "url": "git+ssh://git@github.com/song940/npm.git",
+    "type": "git"
+  },
+  "bin": {
+    "upkg": "bin/upkg"
+  },
+  "updater": {
+    "level": "patch"
+  },
+  "author": "Lsong <song940@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "kelp": "latest",
+    "kelp-body": "latest",
+    "kelp-logger": "latest",
+    "kelp-route": "latest",
+    "kelp-send": "latest",
+    "mkdirp": "latest",
+    "semver": "latest",
+    "xttp": "^1.0.5"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "Another npm server and/or client implementation for nodejs",
+  "bugs": {
+    "url": "https://github.com/song940/npm/issues"
+  },
+  "homepage": "https://github.com/song940/npm#readme",
+  "directories": {
+    "example": "example"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "npm"
+  ]
+}
