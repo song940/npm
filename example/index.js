@@ -1,11 +1,25 @@
-const npm = require('..');
+const path = require('path');
+const { info, resolve } = require('..');
 
-const storage = new npm.Storage({ dir: '/tmp/bb' })
+const k = async pkg => { 
+  const children = [];
+  const { dependencies = {} } = pkg;
+  for (const [name, version] of Object.entries(dependencies)) {
+    const p = await resolve(name, version);
+    p.parent = pkg;
+    p.children = await k(p);
+    console.log(p.name, p.version);
+    children.push(p);
+  }
+  return children;
+};
 
-const proxy = new npm.Proxy({
-  registry: npm(), storage
-});
+const install = async () => {
+  const root = process.cwd();
+  const pkgfile = path.join(root, 'package.json');
+  const pkg = require(pkgfile);
+  const tree = await k(pkg);
+  console.log('tree', tree);
+};
 
-proxy.fetch('kelp').then(package => {
-  console.log(package.name, package['dist-tags'][ 'latest' ]);
-})
+install();

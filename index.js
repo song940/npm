@@ -1,39 +1,37 @@
-const xttp = require('xttp');
-/**
- * [NPM description]
- * @param {[type]} options [description]
- */
-function NPM(options) {
-  if (!(this instanceof NPM))
-    return new NPM(options);
-  return Object.assign(this, {
-    registry: 'http://registry.npmjs.org'
-  }, options);
-}
+const https = require('https');
+const semver = require('semver');
+const { debuglog } = require('util');
 
-/**
- * [getPackage description]
- * @param  {[type]} name    [description]
- * @param  {[type]} version [description]
- * @return {[type]}         [description]
- */
-NPM.prototype.fetch = function (name, version = '') {
-  const { registry } = this;
-  return xttp
-    .get(`${registry}/${name}/${version}`)
-    .then(res => res.json())
-    .then(package => package.name && package);
+const debug = debuglog('upkg:client');
+
+const get = url => new Promise(done => https.get(url, done));
+
+const readStream = stream => new Promise((resolve, reject) => {
+  const buf = [];
+  stream
+    .on('error', reject)
+    .on('data', chunk => buf.push(chunk))
+    .on('end', () => resolve(Buffer.concat(buf)));
+});
+
+const info = async name => {
+  debug('info', name);
+  return Promise
+    .resolve()
+    .then(() => get(`https://registry.npmjs.org/${name}`))
+    .then(readStream)
+    .then(JSON.parse)
 };
 
-/**
- * [Server description]
- * @type {[type]}
- */
-NPM.Proxy = require('./proxy');
-NPM.Server = require('./server');
-NPM.Storage = require('./storage');
-NPM.createServer = function (options) {
-  return new NPM.Server(options);
+const resolve = async (name, version = 'latest') => {
+  const pkg = await info(name);
+  const versions = Object.keys(pkg.versions);
+  version = pkg['dist-tags'][version] || version;
+  version = version in versions ? version : semver.maxSatisfying(versions, version);
+  return pkg.versions[version];
 };
 
-module.exports = NPM;
+module.exports = {
+  info,
+  resolve,
+};

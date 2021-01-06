@@ -21,7 +21,7 @@
     "kelp-route": "latest",
     "kelp-send": "latest",
     "mkdirp": "latest",
-    "semver": "latest",
+    "semver": "^7.3.4",
     "xttp": "^1.0.5"
   },
   "scripts": {
